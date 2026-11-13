@@ -108,69 +108,201 @@ def build(source, progress):
             temp_path.unlink(missing_ok=True)
 
 
-def main():
-    if len(sys.argv) == 3 and sys.argv[1] == '--batch':
+def report_error(title, text):
+    """窗口程序没有控制台，出错必须让用户看得见，同时留一份日志。"""
+    log = None
+    candidates = []
+    if getattr(sys, 'frozen', False):
+        candidates.append(Path(sys.executable).with_suffix('.错误.log'))
+    candidates.append(Path(tempfile.gettempdir()) / 'is-pure-patcher-error.log')
+    for candidate in candidates:
         try:
-            build(sys.argv[2], lambda *_: None)
-            return 0
-        except Exception:
-            return 1
+            candidate.write_text(text, encoding='utf-8')
+            log = candidate
+            break
+        except OSError:
+            continue
+    body = text + (f'\n\n已写入日志：\n{log}' if log else '')
+    try:
+        root = tk.Tk()
+        root.withdraw()
+        messagebox.showerror(title, body)
+        root.destroy()
+    except Exception:                                   # noqa: BLE001 弹不出来也不能崩
+        pass
 
+
+def output_for(source):
+    """与原盘同目录、同名的输出路径。"""
+    return Path(source).with_name(Path(source).stem + '-汉化版-v7.2.iso')
+
+
+def gui(source=None):
     root = tk.Tk()
-    root.withdraw()
     root.title('I’s Pure 汉化一键打盘 v7.2')
-    if len(sys.argv) > 2:
-        messagebox.showerror('无法开始', '请一次只拖入一个原版 ISO 文件。', parent=root)
-        root.destroy()
-        return 1
-    source = sys.argv[1] if len(sys.argv) == 2 else filedialog.askopenfilename(
-        parent=root, title='选择 I’s Pure 原版 ISO', filetypes=[('ISO 镜像', '*.iso'), ('所有文件', '*.*')])
-    if not source:
-        root.destroy()
-        return 0
-    root.deiconify()
-    root.geometry('540x160')
     root.resizable(False, False)
-    frame = ttk.Frame(root, padding=20)
-    frame.pack(fill='both', expand=True)
-    label = ttk.Label(frame, text='准备中…')
-    label.pack(anchor='w', pady=(0, 12))
-    progress_bar = ttk.Progressbar(frame, maximum=100)
-    progress_bar.pack(fill='x')
-    ttk.Label(frame, text='请保持窗口打开；原版 ISO 不会被修改。').pack(anchor='w', pady=(12, 0))
-    events = queue.Queue()
 
-    def run():
+    src_var = tk.StringVar(value=str(source) if source else '')
+    out_var = tk.StringVar()
+
+    def refresh_out(*_):
+        text = src_var.get().strip()
+        out_var.set(str(output_for(text)) if text else '（选好原版 ISO 后自动生成）')
+
+    src_var.trace_add('write', refresh_out)
+    refresh_out()
+
+    frame = ttk.Frame(root, padding=16)
+    frame.pack(fill='both', expand=True)
+
+    ttk.Label(frame, text='原版 ISO').grid(row=0, column=0, sticky='w', pady=4)
+    entry = ttk.Entry(frame, textvariable=src_var, width=56)
+    entry.grid(row=0, column=1, sticky='we', pady=4)
+    ttk.Label(frame, text='把 game-original.iso 拖到本程序上也可以',
+              foreground='#666').grid(row=1, column=1, sticky='w')
+
+    ttk.Label(frame, text='输出镜像').grid(row=2, column=0, sticky='w', pady=4)
+    out_entry = ttk.Entry(frame, textvariable=out_var, width=56, state='readonly')
+    out_entry.grid(row=2, column=1, sticky='we', pady=4)
+    ttk.Label(frame, text='与原盘同目录，不会覆盖已有文件',
+              foreground='#666').grid(row=3, column=1, sticky='w')
+
+    def pick():
+        chosen = filedialog.askopenfilename(
+            parent=root, title='选择 I’s Pure 原版 ISO',
+            filetypes=[('ISO 镜像', '*.iso'), ('所有文件', '*.*')])
+        if chosen:
+            src_var.set(chosen)
+
+    browse = ttk.Button(frame, text='浏览…', command=pick)
+    browse.grid(row=0, column=2, padx=(6, 0))
+
+    status = ttk.Label(frame, text='准备就绪', foreground='#333')
+    status.grid(row=4, column=0, columnspan=3, sticky='w', pady=(14, 4))
+    bar = ttk.Progressbar(frame, maximum=100, length=520)
+    bar.grid(row=5, column=0, columnspan=3, sticky='we')
+
+    buttons = ttk.Frame(frame)
+    buttons.grid(row=6, column=0, columnspan=3, sticky='e', pady=(14, 0))
+    start = ttk.Button(buttons, text='开始打盘')
+    start.pack(side='left')
+
+    ttk.Label(frame, text='只把四个文件替换进原盘，原版 ISO 不会被修改；'
+                          '补丁载荷已内含 v7.1/v7.2 的全部修复。',
+              foreground='#666').grid(row=7, column=0, columnspan=3, sticky='w', pady=(12, 0))
+
+    events = queue.Queue()
+    busy = {'value': False}
+
+    def work():
         try:
-            output = build(source, lambda text, value: events.put(('progress', text, value)))
+            output = build(src_var.get().strip(),
+                           lambda text, value: events.put(('progress', text, value)))
             events.put(('success', str(output)))
-        except Exception as exc:
+        except Exception as exc:                        # noqa: BLE001 报给用户看
             events.put(('error', str(exc)))
+
+    def on_start():
+        if busy['value']:
+            return
+        text = src_var.get().strip()
+        if not text:
+            messagebox.showerror('无法开始', '请先选择原版 ISO。', parent=root)
+            return
+        if not Path(text).is_file():
+            messagebox.showerror('无法开始', f'找不到这个文件：\n{text}', parent=root)
+            return
+        if output_for(text).exists():
+            messagebox.showerror(
+                '输出已存在',
+                f'{output_for(text)}\n\n请先重命名或移走它，程序不会覆盖已有文件。',
+                parent=root)
+            return
+        busy['value'] = True
+        start.config(state='disabled')
+        browse.config(state='disabled')
+        bar['value'] = 0
+        status.config(text='准备中…')
+        threading.Thread(target=work, daemon=True).start()
+
+    start.config(command=on_start)
+    entry.bind('<Return>', lambda _e: on_start())
 
     def poll():
         try:
             while True:
                 event = events.get_nowait()
                 if event[0] == 'progress':
-                    label.config(text=event[1])
-                    progress_bar['value'] = event[2]
+                    status.config(text=event[1])
+                    bar['value'] = event[2]
                 elif event[0] == 'success':
-                    messagebox.showinfo('制作完成', '汉化 ISO 已生成：\n' + event[1], parent=root)
-                    root.destroy()
-                    return
+                    busy['value'] = False
+                    bar['value'] = 100
+                    status.config(text='完成')
+                    start.config(state='normal')
+                    browse.config(state='normal')
+                    path = Path(event[1])
+                    if messagebox.askyesno(
+                            '打盘完成',
+                            f'汉化镜像已生成：\n{path}\n\n要打开它所在的文件夹吗？',
+                            parent=root):
+                        try:
+                            os.startfile(path.parent)       # noqa: S606 只看文件夹
+                        except Exception:                   # noqa: BLE001 打不开就算了
+                            pass
                 else:
-                    messagebox.showerror('制作失败', event[1], parent=root)
-                    root.destroy()
-                    return
+                    busy['value'] = False
+                    bar['value'] = 0
+                    status.config(text='失败')
+                    start.config(state='normal')
+                    browse.config(state='normal')
+                    report_error('打盘失败', event[1])
         except queue.Empty:
             root.after(100, poll)
 
-    root.protocol('WM_DELETE_WINDOW', lambda: messagebox.showinfo('正在制作', '请等待制作完成后再关闭窗口。', parent=root))
-    threading.Thread(target=run, daemon=True).start()
+    root.protocol('WM_DELETE_WINDOW',
+                  lambda: messagebox.showinfo('正在制作', '请等待制作完成后再关闭窗口。',
+                                              parent=root) if busy['value'] else root.destroy())
+
+    root.update_idletasks()
+    root.minsize(root.winfo_reqwidth(), root.winfo_reqheight())
     root.after(100, poll)
     root.mainloop()
     return 0
 
 
+def main():
+    if len(sys.argv) == 3 and sys.argv[1] == '--batch':
+        try:
+            build(sys.argv[2], lambda *_: None)
+            return 0
+        except Exception:                               # noqa: BLE001 批处理只看退出码
+            return 1
+
+    loose = [a for a in sys.argv[1:] if not a.startswith('-')]
+    if len(loose) > 1:
+        report_error('无法开始', '一次只能拖入一个原版 ISO 文件。\n\n收到的：\n'
+                     + '\n'.join(loose))
+        return 1
+    if loose:
+        candidate = Path(loose[0])
+        if not candidate.is_file():
+            report_error('打不开这个文件', f'找不到：\n{candidate}')
+            return 1
+        return gui(candidate)
+    if sys.argv[1:]:
+        report_error('参数不对', '无法识别的参数：\n' + ' '.join(sys.argv[1:]) + '\n\n'
+                     '把原版 ISO 拖到本程序上即可；不带参数双击则打开界面。')
+        return 1
+    return gui()
+
+
 if __name__ == '__main__':
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except SystemExit:
+        raise
+    except BaseException:                               # noqa: BLE001 别静默退出
+        import traceback
+        report_error('汉化一键打盘 出错了', traceback.format_exc())
+        raise SystemExit(1)
