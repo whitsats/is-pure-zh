@@ -1,0 +1,84 @@
+# =============================================================
+# I"s Pure 汉化 —— 仓库只管「文本 + 脚本 + 说明」。
+# 原盘、打好的镜像、字体二进制、本地模拟器环境、原盘提取素材
+# 一律不入库（大件走 Release 的完整补丁包）。
+# =============================================================
+
+# ---- 原盘与打好的镜像 ----
+*.iso
+*.mdf
+*.nrg
+*.bin.tmp
+game-*.iso
+
+# ---- 大件二进制（在 Release 的完整补丁包内）----
+*/patch/
+*.exe
+*.elf
+*.zip
+*.7z
+*.rar
+*.afs
+*.FOP.bin
+*.lzss
+*.pss
+*.sfd
+*.adx
+*.tm2
+*.bmp
+
+# ---- Python / PyInstaller 产物 ----
+__pycache__/
+*.py[cod]
+build/
+dist/
+*.manifest
+warn-*.txt
+xref-*.html
+Analysis-*.toc
+EXE-*.toc
+PKG-*.toc
+PYZ-*.toc
+
+# ---- 本地模拟器环境 ----
+PCSX2/
+pcsx2/
+memcards/
+sstates/
+snaps/
+inis/
+logs/
+
+# ---- 原盘提取 / 素材验证（Freebuff 正在做，与本仓库无关，切勿提交）----
+移植验证/
+提取测试/
+完整背景验证/
+背景抽样验证/
+RenPy文本格式样例/
+ps2-vn-tool-reference/
+realcugan/
+
+# ---- 本地留档的大包与旧版快照 ----
+汉化包-v3/
+汉化包-v7/
+打盘工具源码/
+汉化一键打盘/
+菜单对话汉化*/
+字体研究/
+字体未压缩测试/
+_fix_bak/
+_archive/
+
+# ---- 本地一次性脚本与快捷方式（写死了本机路径）----
+v7打盘准备.py
+*.lnk
+
+# ---- 编辑器 / 系统杂物 ----
+.freebuff/
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+~$*
+*.tmp
+*.log
