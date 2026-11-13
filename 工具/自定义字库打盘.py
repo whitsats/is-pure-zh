@@ -622,7 +622,7 @@ def run(disc: Path, font: Path | None, blob: Path | None, out: Path | None,
 # --------------------------------------------------------------------------- #
 # 图形界面
 # --------------------------------------------------------------------------- #
-def gui() -> int:
+def gui(prefill: Path | None = None) -> int:
     import tkinter as tk
     from tkinter import filedialog, messagebox, ttk
 
@@ -630,10 +630,12 @@ def gui() -> int:
     root.title('I’s Pure 自定义字库打盘')
     root.resizable(False, False)
 
-    disc_var = tk.StringVar()
+    disc_var = tk.StringVar(value=str(prefill) if prefill else '')
     font_var = tk.StringVar()
     blob_var = tk.StringVar()
-    out_var = tk.StringVar()
+    # 把 ISO 拖到 EXE 上时，默认输出就放在它旁边
+    out_var = tk.StringVar(
+        value=str(prefill.with_name(prefill.stem + '-自定义字库.iso')) if prefill else '')
     zh_var = tk.StringVar(value='20')
     pu_var = tk.StringVar(value='18')
     la_var = tk.StringVar(value='18')
@@ -792,6 +794,16 @@ def gui() -> int:
 
 # --------------------------------------------------------------------------- #
 def main() -> int:
+    # 中文 Windows 的控制台/管道是 GBK，而报告里的「跳过」那行会出现 ´―″℃♪ 这类
+    # GBK 编不了的字（U+00B4 等），直接 print 会抛 UnicodeEncodeError、把整个工具
+    # 弄成失败退出。这里改成编不了就替成 ?，不崩。窗口化的 EXE 没有 stdout，
+    # sys.stdout 可能是 None，一并挡掉。
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(errors='replace')
+        except (AttributeError, ValueError, OSError):
+            pass
+
     ap = argparse.ArgumentParser(
         description='把任意字体做成游戏字库并打进已经汉化好的 I’s Pure 镜像')
     ap.add_argument('--盘', dest='disc', type=Path, help='输入镜像（已汉化的 ISO）')
@@ -810,13 +822,21 @@ def main() -> int:
     ap.add_argument('--预览', dest='preview', nargs='?', const='', default=None,
                     metavar='PNG', help='生成预览图；不给路径则与输出同名 .png')
     ap.add_argument('--导出字库', dest='dump', type=Path, help='额外把生成的字库写到这个路径')
-    args = ap.parse_args()
+    args, extra = ap.parse_known_args()
 
     if args.disc is None:
-        if len(sys.argv) > 1:
+        # 支持把 ISO 拖到 EXE 上：没有 --盘 时，多出来的那个文件参数就是输入镜像
+        loose = [a for a in extra if Path(a).is_file()]
+        if len(loose) == 1:
+            return gui(Path(loose[0]))
+        if sys.argv[1:]:
             ap.print_help()
             return 1
         return gui()
+
+    if extra:
+        print(f'错误：无法识别的参数 {" ".join(extra)}', file=sys.stderr)
+        return 1
 
     if bool(args.font) == bool(args.blob):
         print('错误：--字体 与 --字库 必须且只能给一个。', file=sys.stderr)
