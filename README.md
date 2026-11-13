@@ -44,14 +44,14 @@ PS2 游戏《I"s Pure》（SLPM-66570，桂正和原作《I"s》改编）的简�
 
 ### 方式一：一键打盘（推荐，无需 Python）
 
-1. 到 [Releases](../../releases) 下载 `I-s-Pure-一键打盘-v7.1.zip`，解压。
+1. 到 [Releases](https://github.com/whitsats/is-pure-zh/releases) 下载 `I-s-Pure-oneclick-patcher-v7.1.zip`，解压。
 2. 把 `game-original.iso` 拖到 `I-s-Pure-汉化一键打盘-v7.1.exe` 上（或双击 EXE 选择原盘）。
 3. 程序在同目录生成 `<原盘名>-汉化版-v7.1.iso`，校验 MD5 应为 `ace77e8c0e4f0121b28b5328acdd9594`。
 4. 用 PCSX2 加载它游玩（需自备 PS2 BIOS）。
 
 ### 方式二：脚本打盘
 
-1. 到 [Releases](../../releases) 下载 `I-s-Pure-最终汉化结果-20261113-v7.1.zip`（完整补丁包），解压。
+1. 到 [Releases](https://github.com/whitsats/is-pure-zh/releases) 下载 `I-s-Pure-final-20261113-v7.1.zip`（完整补丁包），解压。
 2. 把 `game-original.iso` 放到打盘脚本默认目录（`~/workspace/is-pure/`，Windows 下为用户目录下的 `workspace\is-pure\`）。
 3. 在 `打盘/` 目录运行：
 
