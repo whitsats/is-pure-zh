@@ -137,13 +137,16 @@ def unpack(blob: bytes) -> bytes:
 
 
 # --------------------------------------------------------------------------- #
-def build(source: Path, font_path: Path, outdir: Path, preview: bool) -> None:
+def build(source: Path, font_path: Path, outdir: Path, preview: bool,
+          font_index: int = 0, v_shift: int = 0) -> None:
     mapping = json.loads((Path(__file__).resolve().parent / '字码频率证据.json').read_text('utf-8'))['mapping']
 
-    font_zh = ImageFont.truetype(str(font_path), CHINESE_PX)
-    font_en = ImageFont.truetype(str(font_path), LATIN_PX)
-    font_pu = ImageFont.truetype(str(font_path), PUNCT_PX)
-    cmap = TTFont(font_path).getBestCmap()
+    # .ttc/.otc 是字体合集（宋体 simsun.ttc 里就同时装着 SimSun 与 NSimSun），
+    # 必须指明编号；单个 .ttf 用编号 0 即可。
+    font_zh = ImageFont.truetype(str(font_path), CHINESE_PX, index=font_index)
+    font_en = ImageFont.truetype(str(font_path), LATIN_PX, index=font_index)
+    font_pu = ImageFont.truetype(str(font_path), PUNCT_PX, index=font_index)
+    cmap = TTFont(font_path, fontNumber=font_index).getBestCmap()
 
     def resolve(char: str) -> str | None:
         for cand in (char, unicodedata.normalize('NFKC', char), FALLBACK.get(char)):
@@ -248,12 +251,12 @@ def build(source: Path, font_path: Path, outdir: Path, preview: bool) -> None:
         #   2. 「一」这类扁字的墨迹本来就在字身中部，不是坐在基线上，对齐底会把它
         #      拉到格子中下部（旧字形的底常在 23 行），v7.1 就是这么错的。
         if punct:
-            top = int(max(0, min(24 - height, ink_top)))
+            top = int(max(0, min(24 - height, ink_top + v_shift)))
             canvas = np.zeros((24, 24), bool)
             canvas[top:top + height, left:left + width] = patchpix
             pix = canvas.reshape(-1)
         else:
-            y = 0
+            y = v_shift
             if ink_top + y < 0:
                 y = -ink_top
             if ink_bottom + y > 23:
@@ -324,11 +327,16 @@ def main() -> int:
     ap = argparse.ArgumentParser(description='生成修复字库（清残留 + 标点缩小 + 纵向落位）')
     ap.add_argument('--字库源', dest='source', required=True, type=Path,
                     help='v7 的字库源文件 FONT00-v6.FOP.bin（在完整补丁包内）')
-    ap.add_argument('--字体', dest='font', required=True, type=Path, help='方正粗圆 TTF，需自备')
+    ap.add_argument('--字体', dest='font', required=True, type=Path,
+                    help='TTF/OTF/TTC 字体文件，需自备')
+    ap.add_argument('--字体编号', dest='font_index', type=int, default=0,
+                    help='.ttc/.otc 合集里的字体编号，默认 0')
+    ap.add_argument('--纵向微调', dest='v_shift', type=int, default=0,
+                    help='整行上下平移几个像素，默认 0；换字体后若整行偏高/偏低再用')
     ap.add_argument('--输出目录', dest='out', required=True, type=Path)
     ap.add_argument('--preview', action='store_true', help='只生成预览对照图')
     args = ap.parse_args()
-    build(args.source, args.font, args.out, args.preview)
+    build(args.source, args.font, args.out, args.preview, args.font_index, args.v_shift)
     return 0
 
 

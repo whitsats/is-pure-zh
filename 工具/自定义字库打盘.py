@@ -151,8 +151,26 @@ def font_lzss_in_afs(afs: bytes) -> bytes:
 # --------------------------------------------------------------------------- #
 # 生成新字库
 # --------------------------------------------------------------------------- #
+def font_faces(path: Path) -> list[str]:
+    """列出字体文件里的面（.ttc/.otc 合集会有多个）。单个字体返回长度 1 的列表。"""
+    try:
+        from fontTools.ttLib import TTCollection, TTFont
+    except ImportError:
+        return []
+    head = path.read_bytes()[:4]
+    try:
+        if head == b'ttcf':
+            return [f['name'].getDebugName(4) or f['name'].getDebugName(1) or f'#{i}'
+                    for i, f in enumerate(TTCollection(str(path)).fonts)]
+        f = TTFont(str(path), fontNumber=0, lazy=True)
+        return [f['name'].getDebugName(4) or f['name'].getDebugName(1) or path.stem]
+    except Exception:                                   # noqa: BLE001 列不出来不影响主流程
+        return []
+
+
 def render_font(gen, source_raw: bytes, font_path: Path, workdir: Path,
-                zh_px: int, latin_px: int, punct_px: int, progress) -> tuple[bytes, dict]:
+                zh_px: int, latin_px: int, punct_px: int, font_index: int,
+                v_shift: int, progress) -> tuple[bytes, dict]:
     """调用共用的生成器，产出 (lzss 压缩字库, 报告)。"""
     gen.CHINESE_PX, gen.LATIN_PX, gen.PUNCT_PX = zh_px, latin_px, punct_px
     src = workdir / 'FONT00-字库源.FOP.bin'
@@ -160,7 +178,7 @@ def render_font(gen, source_raw: bytes, font_path: Path, workdir: Path,
     out = workdir / '新字库'
     out.mkdir(exist_ok=True)
     progress('正在用自定义字体渲染字形…', 20)
-    gen.build(src, Path(font_path), out, False)
+    gen.build(src, Path(font_path), out, False, font_index, v_shift)
     lzss = (out / 'FONT00-粗圆.lzss').read_bytes()
     raw = (out / 'FONT00-粗圆.FOP.bin').read_bytes()
     report = json.loads((out / '字符替换清单.json').read_text('utf-8'))
@@ -371,6 +389,110 @@ def preview_sheet(old_raw: bytes, new_raw: bytes, mapping: dict,
 # --------------------------------------------------------------------------- #
 # 主流程
 # --------------------------------------------------------------------------- #
+def ink_of(raw: bytes, index: int) -> int:
+    """一个字形点亮了多少像素（游戏字库是 1-bit，只认亮/不亮）。"""
+    slot, plane = divmod(index, 2)
+    base = 0x5000 + slot * 288
+    if base + 288 > len(raw):
+        return 0
+    shift = 0 if plane == 0 else 2
+    n = 0
+    for y in range(24):
+        for x in range(24):
+            b = raw[base + y * 12 + (x * 4) // 8]
+            nib = (b >> ((x % 2) * 4)) & 0b1111
+            n += ((nib >> shift) & 0b11) != 0
+    return n
+
+
+def ink_rows(raw: bytes, index: int):
+    """一个字形有墨迹的行范围 (top, bottom)，没有则 None。"""
+    slot, plane = divmod(index, 2)
+    base = 0x5000 + slot * 288
+    if base + 288 > len(raw):
+        return None
+    shift = 0 if plane == 0 else 2
+    top = bot = None
+    for y in range(24):
+        row_has = False
+        for x in range(24):
+            b = raw[base + y * 12 + (x * 4) // 8]
+            nib = (b >> ((x % 2) * 4)) & 0b1111
+            if ((nib >> shift) & 0b11) != 0:
+                row_has = True
+                break
+        if row_has:
+            if top is None:
+                top = y
+            bot = y
+    return None if top is None else (top, bot)
+
+
+def placement_note(base_raw: bytes, new_raw: bytes, replaced) -> list[str]:
+    """量新字形的墨迹中心与「输入这张盘上现在的字」差几行。
+
+    每个字形画在 24×24 格子的哪几行，决定了一行字看起来的高低。不同字体在自己的
+    字身里放字的位置不一样（实测宋体的「一」在字身 42% 处、方正粗圆在 59% 处，
+    宋体整行因此比粗圆高约 2–3 行），而游戏把格子画在固定位置，所以换字体可能整行偏移。
+
+    这里只报差值、给个补偿参考，**不自动应用**：这个基准是「输入盘上的字」，
+    如果输入的是 v7.1 的盘，它自己的字库本来就比原盘低约 2 行（见 修复/说明.md
+    第五节），差值里含着这一部分，照搬反而会把落位改回去。
+    """
+    if not replaced:
+        return []
+    idxs = [item[2] * 2 + item[3] for item in replaced]
+    old, new = [], []
+    for i in idxs:
+        a, b = ink_rows(base_raw, i), ink_rows(new_raw, i)
+        if a and b:
+            old.append((a[0] + a[1]) / 2)
+            new.append((b[0] + b[1]) / 2)
+    if not old:
+        return []
+    old.sort()
+    new.sort()
+    om, nm = old[len(old) // 2], new[len(new) // 2]
+    d = nm - om
+    lines = [f'纵向落位：新字形中心在第 {nm:.1f} 行，输入盘上的字在第 {om:.1f} 行'
+             f'（相差 {d:+.1f} 行）']
+    if abs(d) >= 1.0:
+        lines.append(f'      换完若觉得整行偏高/偏低，用「纵向微调」补偿'
+                     f'（正=下移）；差值是 {round(-d):+d}')
+    if om >= 13.0:
+        # 基准字库的中心低到 13 行以后，基本可以断定这张盘用的是 v7.1 那版落位偏低的
+        # 字库，差值里含着那 2 行，照搬会把落位改回去。
+        lines.append('      注意基准是「输入盘上现在的字」：这张盘的字比原盘低约 2 行，'
+                     '差值里含这一部分，最好换成 v7.3 及以后的盘当基准')
+    return lines
+
+
+def stroke_note(base_raw: bytes, new_raw: bytes, replaced) -> list[str]:
+    """比一比新旧字形的墨迹量。
+
+    游戏字库是 1-bit（只认亮/不亮，没有灰度），所以笔画细的字体 —— 典型是宋体这类
+    衬线体 —— 在 20 像素下抗锯齿后的覆盖率大量落在阈值以下，字形会变得断断续续。
+    这里量「每个汉字平均点亮多少像素」，细太多就提示加大字号。
+    """
+    if not replaced:
+        return []
+    idxs = [item[2] * 2 + item[3] for item in replaced]
+    old = sorted(ink_of(base_raw, i) for i in idxs)
+    new = sorted(ink_of(new_raw, i) for i in idxs)
+    if not old or not new:
+        return []
+    om, nm = old[len(old) // 2], new[len(new) // 2]
+    if om <= 0:
+        return []
+    lines = [f'笔画粗细：每个字平均点亮 {nm} 个像素'
+             f'（盘上原来那套字是 {om}，{nm * 100 // om}%）']
+    if nm * 2 < om:
+        lines.append('      ★ 这个字体在这个字号下偏细，游戏里会显得笔画断断续续；'
+                     '把「汉字字号」调大（宋体这类衬线体一般要 22 起），'
+                     '或者换一个笔画更粗的字体')
+    return lines
+
+
 def summarize(gen, report: dict | None, lzss: bytes, old_lzss_len: int) -> list[str]:
     lines = []
     if report is None:
@@ -410,7 +532,8 @@ def summarize(gen, report: dict | None, lzss: bytes, old_lzss_len: int) -> list[
 
 def run(disc: Path, font: Path | None, blob: Path | None, out: Path | None,
         zh_px: int, latin_px: int, punct_px: int, source_font: Path | None,
-        preview: Path | None, dump_font: Path | None, progress) -> list[str]:
+        preview: Path | None, dump_font: Path | None, progress,
+        font_index: int = 0, v_shift: int = 0) -> list[str]:
     disc = Path(disc).resolve(strict=True)
     if not disc.is_file():
         raise ToolError(f'找不到镜像：{disc}')
@@ -421,6 +544,11 @@ def run(disc: Path, font: Path | None, blob: Path | None, out: Path | None,
     gen = load_generator()
     mapping = json.loads(
         (repo_root() / '修复' / '字库' / '字码频率证据.json').read_text('utf-8'))['mapping']
+
+    faces = font_faces(font) if font is not None else []
+    if faces and not 0 <= font_index < len(faces):
+        raise ToolError(f'字体编号 {font_index} 超出范围：{font.name} 里有 '
+                        f'{len(faces)} 个字体（0–{len(faces) - 1}）')
 
     progress('正在读取镜像里的 ETC.AFS…', 5)
     afs = read_disc_afs(disc)
@@ -444,12 +572,19 @@ def run(disc: Path, font: Path | None, blob: Path | None, out: Path | None,
             else:
                 src_raw = base_raw
             lzss, report = render_font(gen, src_raw, font, tmpdir, zh_px, latin_px,
-                                       punct_px, progress)
+                                       punct_px, font_index, v_shift, progress)
             raw = report['_raw']
 
     lines = [f'输入镜像：{disc}',
              f'输入字库：{len(old_lzss)} 字节（压缩态）']
+    if faces:
+        mark = '　'.join(f'[{i}] {n}' + ('　←选中' if i == font_index else '')
+                         for i, n in enumerate(faces))
+        lines.append(f'字体文件：{font.name}　含 {len(faces)} 个字体：{mark}')
     lines += summarize(gen, report, lzss, len(old_lzss))
+    if report is not None:
+        lines += stroke_note(base_raw, raw, report.get('replaced'))
+        lines += placement_note(base_raw, raw, report.get('replaced'))
 
     if dump_font is not None:
         dump_font = Path(dump_font)
@@ -502,6 +637,8 @@ def gui() -> int:
     zh_var = tk.StringVar(value='20')
     pu_var = tk.StringVar(value='18')
     la_var = tk.StringVar(value='18')
+    fi_var = tk.StringVar(value='0')
+    vs_var = tk.StringVar(value='0')
 
     frm = ttk.Frame(root, padding=16)
     frm.pack(fill='both', expand=True)
@@ -555,8 +692,12 @@ def gui() -> int:
     ttk.Label(sizes, text='标点').pack(side='left')
     ttk.Entry(sizes, textvariable=pu_var, width=4).pack(side='left', padx=(4, 12))
     ttk.Label(sizes, text='全角拉丁').pack(side='left')
-    ttk.Entry(sizes, textvariable=la_var, width=4).pack(side='left', padx=(4, 0))
-    ttk.Label(sizes, text='像素').pack(side='left', padx=(4, 0))
+    ttk.Entry(sizes, textvariable=la_var, width=4).pack(side='left', padx=(4, 12))
+    ttk.Label(sizes, text='字体编号').pack(side='left')
+    ttk.Entry(sizes, textvariable=fi_var, width=4).pack(side='left', padx=(4, 12))
+    ttk.Label(sizes, text='纵向微调').pack(side='left')
+    ttk.Entry(sizes, textvariable=vs_var, width=4).pack(side='left', padx=(4, 0))
+    ttk.Label(sizes, text='像素（正=下移）').pack(side='left', padx=(4, 0))
 
     status = ttk.Label(frm, text='准备就绪', foreground='#333')
     status.grid(row=9, column=0, columnspan=3, sticky='w', pady=(14, 4))
@@ -580,8 +721,9 @@ def gui() -> int:
             return
         try:
             zh, pu, la = int(zh_var.get()), int(pu_var.get()), int(la_var.get())
+            fi, vs = int(fi_var.get()), int(vs_var.get())
         except ValueError:
-            messagebox.showerror('无法开始', '字号必须是整数。', parent=root)
+            messagebox.showerror('无法开始', '字号、字体编号、纵向微调都必须是整数。', parent=root)
             return
         out = out_var.get().strip() or None
         if kind == 'build' and not out:
@@ -602,7 +744,8 @@ def gui() -> int:
                             Path(blob) if blob else None,
                             Path(out) if (out and kind == 'build') else None,
                             zh, la, pu, None, preview, None,
-                            lambda text, value: events.put(('progress', text, value)))
+                            lambda text, value: events.put(('progress', text, value)),
+                            fi, vs)
                 events.put(('done', kind, '\n'.join(lines), preview))
             except Exception as exc:                       # noqa: BLE001 报给用户看
                 events.put(('error', str(exc)))
@@ -653,6 +796,8 @@ def main() -> int:
         description='把任意字体做成游戏字库并打进已经汉化好的 I’s Pure 镜像')
     ap.add_argument('--盘', dest='disc', type=Path, help='输入镜像（已汉化的 ISO）')
     ap.add_argument('--字体', dest='font', type=Path, help='自定义字体 .ttf/.otf/.ttc')
+    ap.add_argument('--字体编号', dest='font_index', type=int, default=0,
+                    help='.ttc/.otc 合集里的字体编号，默认 0；选错会打印可选清单')
     ap.add_argument('--字库', dest='blob', type=Path, help='现成字库：.lzss 或解压态 FONT00')
     ap.add_argument('--输出', dest='out', type=Path, help='输出镜像路径')
     ap.add_argument('--字库源', dest='source_font', type=Path,
@@ -660,6 +805,8 @@ def main() -> int:
     ap.add_argument('--汉字字号', dest='zh', type=int, default=20)
     ap.add_argument('--标点字号', dest='punct', type=int, default=18)
     ap.add_argument('--拉丁字号', dest='latin', type=int, default=18)
+    ap.add_argument('--纵向微调', dest='v_shift', type=int, default=0,
+                    help='整行上下平移几个像素，默认 0；数值为正=往下移')
     ap.add_argument('--预览', dest='preview', nargs='?', const='', default=None,
                     metavar='PNG', help='生成预览图；不给路径则与输出同名 .png')
     ap.add_argument('--导出字库', dest='dump', type=Path, help='额外把生成的字库写到这个路径')
@@ -690,7 +837,7 @@ def main() -> int:
     try:
         for line in run(args.disc, args.font, args.blob, args.out,
                         args.zh, args.latin, args.punct, args.source_font,
-                        preview, args.dump, progress):
+                        preview, args.dump, progress, args.font_index, args.v_shift):
             print(line)
     except ToolError as exc:
         print(f'错误：{exc}', file=sys.stderr)
