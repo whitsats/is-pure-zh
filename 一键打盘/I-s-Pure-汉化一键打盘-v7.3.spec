@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='I-s-Pure-汉化一键打盘-v7.2',
+    name='I-s-Pure-汉化一键打盘-v7.3',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

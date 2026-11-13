@@ -13,7 +13,7 @@ from tkinter import filedialog, messagebox, ttk
 
 SOURCE_SIZE = 1_847_197_696
 SOURCE_SHA256 = '00910f6dab053be50e998fe564a25698754d082a6505ce844e547bef1804357b'
-OUTPUT_SHA256 = 'b0652b42410c2a15ca0cdfd95c9fdfdd9a4e87511226887130e0721eb890a8b5'
+OUTPUT_SHA256 = '6bf058cfe8c5445739146d5f1839320a79d06bc2d8ac3a8e9bc48262491a04d3'
 SLOTS = {
     'ETC.AFS': ('etc-v6.afs', 159082, 17889280),
     'MAC.AFS': ('mac-v6.afs', 192346, 1081344),
@@ -41,7 +41,7 @@ def build(source, progress):
         raise ValueError('请选择原版 ISO 文件。')
     if source.stat().st_size != SOURCE_SIZE:
         raise ValueError('原盘大小不匹配。此工具仅适用于指定版本的 I’s Pure 原版 ISO。')
-    output = source.with_name(source.stem + '-汉化版-v7.2.iso')
+    output = source.with_name(source.stem + '-汉化版-v7.3.iso')
     if output.exists():
         raise FileExistsError(f'输出文件已存在，请先重命名或移走它：\n{output}')
     if digest(source, '正在校验原版 ISO…', 0, 30, progress) != SOURCE_SHA256:
@@ -134,12 +134,12 @@ def report_error(title, text):
 
 def output_for(source):
     """与原盘同目录、同名的输出路径。"""
-    return Path(source).with_name(Path(source).stem + '-汉化版-v7.2.iso')
+    return Path(source).with_name(Path(source).stem + '-汉化版-v7.3.iso')
 
 
 def gui(source=None):
     root = tk.Tk()
-    root.title('I’s Pure 汉化一键打盘 v7.2')
+    root.title('I’s Pure 汉化一键打盘 v7.3')
     root.resizable(False, False)
 
     src_var = tk.StringVar(value=str(source) if source else '')
@@ -188,7 +188,7 @@ def gui(source=None):
     start.pack(side='left')
 
     ttk.Label(frame, text='只把四个文件替换进原盘，原版 ISO 不会被修改；'
-                          '补丁载荷已内含 v7.1/v7.2 的全部修复。',
+                          '补丁载荷已内含 v7.1/v7.2 的显示修复与 v7.3 的译文润色。',
               foreground='#666').grid(row=7, column=0, columnspan=3, sticky='w', pady=(12, 0))
 
     events = queue.Queue()
