@@ -463,7 +463,7 @@ def placement_note(base_raw: bytes, new_raw: bytes, replaced) -> list[str]:
         # 基准字库的中心低到 13 行以后，基本可以断定这张盘用的是 v7.1 那版落位偏低的
         # 字库，差值里含着那 2 行，照搬会把落位改回去。
         lines.append('      注意基准是「输入盘上现在的字」：这张盘的字比原盘低约 2 行，'
-                     '差值里含这一部分，最好换成 v7.3 及以后的盘当基准')
+                     '差值里含这一部分，最好换成 v7.2 及以后的盘当基准')
     return lines
 
 

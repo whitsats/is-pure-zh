@@ -13,7 +13,7 @@ from tkinter import filedialog, messagebox, ttk
 
 SOURCE_SIZE = 1_847_197_696
 SOURCE_SHA256 = '00910f6dab053be50e998fe564a25698754d082a6505ce844e547bef1804357b'
-OUTPUT_SHA256 = '81bbeb7acdc4607877a9d70e79f7b87f1a7cc41b6ae850020f9bc0c66ec7dc2f'
+OUTPUT_SHA256 = 'b0652b42410c2a15ca0cdfd95c9fdfdd9a4e87511226887130e0721eb890a8b5'
 SLOTS = {
     'ETC.AFS': ('etc-v6.afs', 159082, 17889280),
     'MAC.AFS': ('mac-v6.afs', 192346, 1081344),
@@ -41,7 +41,7 @@ def build(source, progress):
         raise ValueError('请选择原版 ISO 文件。')
     if source.stat().st_size != SOURCE_SIZE:
         raise ValueError('原盘大小不匹配。此工具仅适用于指定版本的 I’s Pure 原版 ISO。')
-    output = source.with_name(source.stem + '-汉化版-v7.1.iso')
+    output = source.with_name(source.stem + '-汉化版-v7.2.iso')
     if output.exists():
         raise FileExistsError(f'输出文件已存在，请先重命名或移走它：\n{output}')
     if digest(source, '正在校验原版 ISO…', 0, 30, progress) != SOURCE_SHA256:
@@ -118,7 +118,7 @@ def main():
 
     root = tk.Tk()
     root.withdraw()
-    root.title('I’s Pure 汉化一键打盘 v7.1')
+    root.title('I’s Pure 汉化一键打盘 v7.2')
     if len(sys.argv) > 2:
         messagebox.showerror('无法开始', '请一次只拖入一个原版 ISO 文件。', parent=root)
         root.destroy()
