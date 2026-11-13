@@ -70,6 +70,44 @@ class ToolError(Exception):
     """能直接讲给用户听的错误。"""
 
 
+def report_error(title: str, text: str) -> None:
+    """把错误弹出来并写一份日志。
+
+    窗口化的 EXE 没有控制台：一旦走「打印帮助 / 抛异常然后退出」这条路，用户看到的
+    只是窗口一闪就没了，完全不知道自己哪里做错了。所以任何错误都要弹窗 + 落盘。
+    """
+    log = None
+    cands = []
+    if getattr(sys, 'frozen', False):
+        cands.append(Path(sys.executable).with_suffix('.错误.log'))
+    cands.append(Path(tempfile.gettempdir()) / 'is-font-tool-error.log')
+    for cand in cands:
+        try:
+            cand.write_text(text, 'utf-8')
+            log = cand
+            break
+        except OSError:
+            continue
+    body = text + (f'\n\n已写入日志：\n{log}' if log else '')
+    # 有控制台（命令行/管道）就只写 stderr —— 弹模态窗会把批处理卡住。
+    # 双击运行时 sys.stderr 是 None，这时才弹窗，否则用户什么都看不到。
+    if sys.stderr is not None:
+        try:
+            print(f'{title}\n{body}', file=sys.stderr)
+            return
+        except Exception:                               # noqa: BLE001 写不出去就退而弹窗
+            pass
+    try:
+        import tkinter as tk
+        from tkinter import messagebox
+        r = tk.Tk()
+        r.withdraw()
+        messagebox.showerror(title, body)
+        r.destroy()
+    except Exception:                                   # noqa: BLE001 弹不出来也不能崩
+        pass
+
+
 # --------------------------------------------------------------------------- #
 # 定位仓库 / 载入共用的字库生成器
 # --------------------------------------------------------------------------- #
@@ -826,23 +864,34 @@ def main() -> int:
 
     if args.disc is None:
         # 支持把 ISO 拖到 EXE 上：没有 --盘 时，多出来的那个文件参数就是输入镜像
-        loose = [a for a in extra if Path(a).is_file()]
+        loose = [a for a in extra if not a.startswith('-')]
         if len(loose) == 1:
-            return gui(Path(loose[0]))
+            cand = Path(loose[0])
+            if cand.is_file():
+                return gui(cand)
+            report_error('打不开这个文件', f'找不到：\n{cand}')
+            return 1
+        if loose:
+            report_error('参数不对',
+                         '一次只能拖入一个 ISO 文件。\n\n'
+                         '收到的：\n' + '\n'.join(loose))
+            return 1
         if sys.argv[1:]:
-            ap.print_help()
+            report_error('参数不对',
+                         '无法识别的参数：\n' + ' '.join(sys.argv[1:]) + '\n\n'
+                         '把 ISO 拖到本程序上即可；不带参数双击则打开界面。')
             return 1
         return gui()
 
     if extra:
-        print(f'错误：无法识别的参数 {" ".join(extra)}', file=sys.stderr)
+        report_error('参数不对', '无法识别的参数：\n' + '\n'.join(extra))
         return 1
 
     if bool(args.font) == bool(args.blob):
-        print('错误：--字体 与 --字库 必须且只能给一个。', file=sys.stderr)
+        report_error('参数不对', '--字体 与 --字库 必须且只能给一个。')
         return 1
     if args.out is None and args.preview is None and args.dump is None:
-        print('错误：请给 --输出（或 --预览 / --导出字库 至少一个）。', file=sys.stderr)
+        report_error('参数不对', '请给 --输出（或 --预览 / --导出字库 至少一个）。')
         return 1
 
     preview = None
@@ -860,13 +909,20 @@ def main() -> int:
                         preview, args.dump, progress, args.font_index, args.v_shift):
             print(line)
     except ToolError as exc:
-        print(f'错误：{exc}', file=sys.stderr)
+        report_error('打盘失败', str(exc))
         return 1
     except FileNotFoundError as exc:
-        print(f'错误：找不到文件 {exc.filename}', file=sys.stderr)
+        report_error('打盘失败', f'找不到文件：{exc.filename}')
         return 1
     return 0
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except SystemExit:
+        raise
+    except BaseException:                               # noqa: BLE001 给用户看，别静默退出
+        import traceback
+        report_error('自定义字库打盘 出错了', traceback.format_exc())
+        raise SystemExit(1)
