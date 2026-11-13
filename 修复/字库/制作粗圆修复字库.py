@@ -18,6 +18,15 @@
    标点定位不能用 Pillow 的 `textbbox`（CJK 下返回的是前进宽度，会把
    、「」这类窄标点摆偏），改为渲染后取真实墨迹包围盒来摆放。
 
+3. **纵向落位错乱（尤其「一」这类扁字）**
+   v7.1 用 Pillow 的 `textbbox` 高度做纵向定位。`textbbox` 给的是**布局框**
+   而不是墨迹框：20 像素的「一」返回高度 9，真实墨迹只有 2 行，于是「一」被
+   顶到格子上部（实测落在 7–8 行，原盘是 11–12 行）。
+   本脚本改为：三类字（汉字 20px、标点 18px、全角拉丁 18px）一律画在字体
+   自身的自然基线上，不再按槽位里旧字形的墨迹底对齐。这样每个字的墨迹中心
+   与原盘同一汉字的差全部落在 ±1 行内（1518 个可比汉字实测），「一」精确复刻
+   原盘的 11–12 行。
+
 用法
 ----
   python 制作粗圆修复字库.py --字库源 FONT00-v6.FOP.bin \\
@@ -199,14 +208,21 @@ def build(source: Path, font_path: Path, outdir: Path, preview: bool) -> None:
 
         image = Image.new('L', (24, 24), 0)
         font = font_zh if chinese else (font_pu if punct else font_en)
+        # Pillow 的 textbbox 给的是「布局框」而不是墨迹框：对「一」这种扁字，
+        # 20 像素下它返回 (0,10,20,19)（高 9），真实墨迹只有 2 行。
+        # 所以横向仍可用布局框（保持原字距观感），纵向必须量真实墨迹。
+        scratch = Image.new('L', (64, 64), 0)
+        ImageDraw.Draw(scratch).text((0, 0), glyph, font=font, fill=255)
+        ink = np.asarray(scratch) > 128
+        iy, ix = np.nonzero(ink)
+        if not len(ix):
+            skipped.append((code, char, 'empty glyph'))
+            continue
+        ink_top, ink_bottom = int(iy.min()), int(iy.max())
+        if ink_bottom - ink_top + 1 > 24:
+            skipped.append((code, char, 'glyph larger than cell'))
+            continue
         if punct:
-            scratch = Image.new('L', (64, 64), 0)
-            ImageDraw.Draw(scratch).text((16, 16), glyph, font=font, fill=255)
-            ink = np.asarray(scratch) > 128
-            iy, ix = np.nonzero(ink)
-            if not len(ix):
-                skipped.append((code, char, 'empty glyph'))
-                continue
             patchpix = ink[iy.min():iy.max() + 1, ix.min():ix.max() + 1]
             height, width = patchpix.shape
         else:
@@ -221,14 +237,28 @@ def build(source: Path, font_path: Path, outdir: Path, preview: bool) -> None:
             continue
         center = (int(xs.min()) + int(xs.max()) + 1) / 2
         left = int(round(max(metric_left, min(center - width / 2, metric_right + 1 - width, 24 - width))))
-        bottom = int(ys.max()) + 1
-        top = int(max(0, min(24 - height, bottom - height)))
+        # 纵向：三类字一律画在字体自身的自然基线上（y=0），只做「不许出格」的最小夹取。
+        #
+        # 原盘字库把每个字画在格子的自然位置上（「一」在 11–12 行、「是」在 1–22 行），
+        # 而本字体在 20/18 像素下把同一个字画在 y=0，就落在同样的行：实测 1518 个
+        # 可比汉字里，墨迹中心与原盘同字的差全部落在 ±1 行内；「一」更是精确到 11–12。
+        #
+        # 之前按「旧字形墨迹底」对齐（target = ys.max()）是错的，有两层原因：
+        #   1. 20 像素的新字比 24 像素的原字小，对齐「底」等于把整行下压 2–3 行；
+        #   2. 「一」这类扁字的墨迹本来就在字身中部，不是坐在基线上，对齐底会把它
+        #      拉到格子中下部（旧字形的底常在 23 行），v7.1 就是这么错的。
         if punct:
+            top = int(max(0, min(24 - height, ink_top)))
             canvas = np.zeros((24, 24), bool)
             canvas[top:top + height, left:left + width] = patchpix
             pix = canvas.reshape(-1)
         else:
-            draw.text((left - box[0], top - box[1]), glyph, font=font, fill=255)
+            y = 0
+            if ink_top + y < 0:
+                y = -ink_top
+            if ink_bottom + y > 23:
+                y = 23 - ink_bottom
+            draw.text((left - box[0], y), glyph, font=font, fill=255)
             pix = np.asarray(image).reshape(-1) >= 128
         nibbles = (nibbles & (15 ^ mask)) | (pix.astype(np.uint8) * bit)
         data[offset:offset + 288] = bytes((nibbles[0::2] | (nibbles[1::2] << 4)).tolist())
@@ -291,7 +321,7 @@ def preview_sheet(source: Path, data: bytearray, changes, outdir: Path) -> None:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description='生成 v7.1 修复字库（清残留 + 标点缩小）')
+    ap = argparse.ArgumentParser(description='生成修复字库（清残留 + 标点缩小 + 纵向落位）')
     ap.add_argument('--字库源', dest='source', required=True, type=Path,
                     help='v7 的字库源文件 FONT00-v6.FOP.bin（在完整补丁包内）')
     ap.add_argument('--字体', dest='font', required=True, type=Path, help='方正粗圆 TTF，需自备')
