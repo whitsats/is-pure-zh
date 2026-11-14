@@ -1,0 +1,7 @@
+entry,dump_file,rgb_max,rgb_mean,alpha_max,alpha_mean,verdict
+518,b85080bb405d1dc0-00001680.png,0,0.0,0,0.0,EXACT 格式验证(非2840)
+2792,(none),-,-,-,-,NOT DUMPED: 389 dumps中无匹配
+2840,(none),-,-,-,-,"NOT DUMPED: 389 dumps中无匹配(实机用body站立像,半身像未上传)"
+2894,(none),-,-,-,-,NOT DUMPED
+2912,(none),-,-,-,-,NOT DUMPED
+2768,(none),-,-,-,-,NOT DUMPED

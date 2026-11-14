@@ -1,0 +1,340 @@
+{
+  "iso": {
+    "path": "E:\\Entertainment\\IS\\game-v5.iso",
+    "size": 1847197696
+  },
+  "environment": {
+    "python": "3.14.10",
+    "pillow": "13.0.0",
+    "numpy": "2.5.4"
+  },
+  "sample": [
+    20,
+    40,
+    80,
+    120,
+    160,
+    200,
+    240,
+    278
+  ],
+  "decoded": [
+    {
+      "index": 20,
+      "unpacked_bytes": 1442048,
+      "header_u32_0": 5,
+      "image_size": "704x512",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "alpha_levels": 2,
+      "alpha_zero_pct": 43.45037286931818,
+      "alpha_full_pct": 56.54962713068182,
+      "alpha_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "png": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\BG_020_full.png",
+      "crop_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "crop_size": [
+        684,
+        298
+      ],
+      "mean_rgb_diff": 3.7021130952380954,
+      "p95_rgb_diff": 18.0,
+      "max_rgb_diff": 95,
+      "exact_pixel_pct": 17.955357142857142,
+      "near_pixel_pct": 82.41964285714286,
+      "panel": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\compare_020.png"
+    },
+    {
+      "index": 40,
+      "unpacked_bytes": 1442048,
+      "header_u32_0": 5,
+      "image_size": "704x512",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "alpha_levels": 2,
+      "alpha_zero_pct": 43.45037286931818,
+      "alpha_full_pct": 56.54962713068182,
+      "alpha_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "png": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\BG_040_full.png",
+      "crop_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "crop_size": [
+        684,
+        298
+      ],
+      "mean_rgb_diff": 5.255267857142857,
+      "p95_rgb_diff": 20.0,
+      "max_rgb_diff": 89,
+      "exact_pixel_pct": 2.9732142857142856,
+      "near_pixel_pct": 72.24107142857143,
+      "panel": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\compare_040.png"
+    },
+    {
+      "index": 80,
+      "unpacked_bytes": 1442048,
+      "header_u32_0": 5,
+      "image_size": "704x512",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "alpha_levels": 2,
+      "alpha_zero_pct": 43.45037286931818,
+      "alpha_full_pct": 56.54962713068182,
+      "alpha_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "png": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\BG_080_full.png",
+      "crop_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "crop_size": [
+        684,
+        298
+      ],
+      "mean_rgb_diff": 3.988095238095238,
+      "p95_rgb_diff": 17.0,
+      "max_rgb_diff": 75,
+      "exact_pixel_pct": 7.116071428571429,
+      "near_pixel_pct": 84.59821428571429,
+      "panel": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\compare_080.png"
+    },
+    {
+      "index": 120,
+      "unpacked_bytes": 1442048,
+      "header_u32_0": 5,
+      "image_size": "704x512",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "alpha_levels": 2,
+      "alpha_zero_pct": 43.45037286931818,
+      "alpha_full_pct": 56.54962713068182,
+      "alpha_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "png": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\BG_120_full.png",
+      "crop_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "crop_size": [
+        684,
+        298
+      ],
+      "mean_rgb_diff": 1.6447023809523809,
+      "p95_rgb_diff": 7.0,
+      "max_rgb_diff": 35,
+      "exact_pixel_pct": 10.758928571428573,
+      "near_pixel_pct": 93.6875,
+      "panel": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\compare_120.png"
+    },
+    {
+      "index": 160,
+      "unpacked_bytes": 1442048,
+      "header_u32_0": 5,
+      "image_size": "704x512",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "alpha_levels": 2,
+      "alpha_zero_pct": 43.45037286931818,
+      "alpha_full_pct": 56.54962713068182,
+      "alpha_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "png": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\BG_160_full.png",
+      "crop_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "crop_size": [
+        684,
+        298
+      ],
+      "mean_rgb_diff": 3.1471130952380952,
+      "p95_rgb_diff": 12.0,
+      "max_rgb_diff": 66,
+      "exact_pixel_pct": 6.937500000000001,
+      "near_pixel_pct": 87.75892857142857,
+      "panel": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\compare_160.png"
+    },
+    {
+      "index": 200,
+      "unpacked_bytes": 1442048,
+      "header_u32_0": 5,
+      "image_size": "704x512",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "alpha_levels": 2,
+      "alpha_zero_pct": 43.45037286931818,
+      "alpha_full_pct": 56.54962713068182,
+      "alpha_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "png": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\BG_200_full.png",
+      "crop_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "crop_size": [
+        684,
+        298
+      ],
+      "mean_rgb_diff": 1.7296130952380953,
+      "p95_rgb_diff": 7.0,
+      "max_rgb_diff": 39,
+      "exact_pixel_pct": 23.866071428571427,
+      "near_pixel_pct": 95.07142857142857,
+      "panel": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\compare_200.png"
+    },
+    {
+      "index": 240,
+      "unpacked_bytes": 1442048,
+      "header_u32_0": 5,
+      "image_size": "704x512",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "alpha_levels": 2,
+      "alpha_zero_pct": 43.45037286931818,
+      "alpha_full_pct": 56.54962713068182,
+      "alpha_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "png": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\BG_240_full.png",
+      "crop_bbox": [
+        0,
+        47,
+        684,
+        345
+      ],
+      "crop_size": [
+        684,
+        298
+      ],
+      "mean_rgb_diff": 4.868303571428571,
+      "p95_rgb_diff": 19.0,
+      "max_rgb_diff": 77,
+      "exact_pixel_pct": 3.6785714285714284,
+      "near_pixel_pct": 76.375,
+      "panel": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\compare_240.png"
+    },
+    {
+      "index": 278,
+      "unpacked_bytes": 1442048,
+      "header_u32_0": 5,
+      "image_size": "704x512",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "alpha_levels": 2,
+      "alpha_zero_pct": 9.292879971590908,
+      "alpha_full_pct": 90.7071200284091,
+      "alpha_bbox": [
+        0,
+        0,
+        684,
+        478
+      ],
+      "png": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\BG_278_full.png",
+      "crop_bbox": [
+        0,
+        0,
+        684,
+        478
+      ],
+      "crop_size": [
+        684,
+        478
+      ],
+      "mean_rgb_diff": 53.41898809523809,
+      "p95_rgb_diff": 172.0,
+      "max_rgb_diff": 252,
+      "exact_pixel_pct": 4.276785714285714,
+      "near_pixel_pct": 19.375,
+      "panel": "E:\\Entertainment\\IS\\\u79fb\u690d\u9a8c\u8bc1\\\u80cc\u666f\u62bd\u6837\u9a8c\u8bc1\\samples\\compare_278.png"
+    }
+  ],
+  "failures": [],
+  "control": [
+    {
+      "decoded": 20,
+      "thumbnail_of": 40,
+      "mean_rgb_diff": 80.61610119047619,
+      "exact_pixel_pct": 0.0
+    },
+    {
+      "decoded": 40,
+      "thumbnail_of": 80,
+      "mean_rgb_diff": 72.56776785714285,
+      "exact_pixel_pct": 0.0
+    },
+    {
+      "decoded": 80,
+      "thumbnail_of": 120,
+      "mean_rgb_diff": 116.30113095238096,
+      "exact_pixel_pct": 0.0
+    },
+    {
+      "decoded": 120,
+      "thumbnail_of": 160,
+      "mean_rgb_diff": 40.76125,
+      "exact_pixel_pct": 0.0
+    },
+    {
+      "decoded": 160,
+      "thumbnail_of": 200,
+      "mean_rgb_diff": 37.85532738095238,
+      "exact_pixel_pct": 0.0625
+    },
+    {
+      "decoded": 200,
+      "thumbnail_of": 240,
+      "mean_rgb_diff": 142.63473214285713,
+      "exact_pixel_pct": 0.0
+    },
+    {
+      "decoded": 240,
+      "thumbnail_of": 278,
+      "mean_rgb_diff": 71.73223214285714,
+      "exact_pixel_pct": 0.017857142857142856
+    }
+  ]
+}
