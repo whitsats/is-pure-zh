@@ -110,28 +110,28 @@ python 修复/字库/替换字库.py --afs etc-v6.afs --lzss out/FONT00-粗圆.l
 
 ### 方式一：一键打盘（推荐，无需 Python）
 
-1. 到 [Releases](https://github.com/whitsats/is-pure-zh/releases) 下载 `I-s-Pure-oneclick-patcher-v7.2.zip`，解压。
-2. 把 `game-original.iso` 拖到 `I-s-Pure-汉化一键打盘-v7.2.exe` 上（或双击 EXE 选择原盘）。
-3. 程序在同目录生成 `<原盘名>-汉化版-v7.2.iso`，校验 MD5 应为 `7b91e356a7e879d9e7ec6f99a2885d66`。
+1. 到 [Releases](https://github.com/whitsats/is-pure-zh/releases/tag/v7.4) 下载 `I-s-Pure-oneclick-patcher-v7.4.zip`，解压。
+2. 把 `game-original.iso` 拖到 `I-s-Pure-汉化一键打盘-v7.4.exe` 上（或双击 EXE 选择原盘）。
+3. 程序在同目录生成 `<原盘名>-汉化版-v7.4.iso`，校验 MD5 应为 `3d9920d080db026ed90bbde1bd26667b`。
 4. 用 PCSX2 加载它游玩（需自备 PS2 BIOS）。
 
 ### 方式二：脚本打盘
 
-1. 到 [Releases](https://github.com/whitsats/is-pure-zh/releases) 下载 `I-s-Pure-final-20261113-v7.2.zip`（完整补丁包），解压。
+1. 到 [Releases](https://github.com/whitsats/is-pure-zh/releases/tag/v7.4) 下载 `I-s-Pure-final-20261113-v7.4.zip`（完整补丁包），解压。
 2. 把 `game-original.iso` 放到打盘脚本默认目录（`~/workspace/is-pure/`，Windows 下为用户目录下的 `workspace\is-pure\`）。
 3. 在 `打盘/` 目录运行：
 
    ```
-   python3 build_v7.py etc-v6.afs mac-v6.afs init-v5-lazy.bin SLPM_665.70-patched.elf game-v7.2.iso
+   python3 build_v7.py etc-v6.afs mac-v6.afs init-v5-lazy.bin SLPM_665.70-patched.elf game-v7.4.iso
    ```
 
-4. 打完校验 md5 应为 `7b91e356a7e879d9e7ec6f99a2885d66`（Windows：`certutil -hashfile game-v7.2.iso MD5`）。
+4. 打完校验 md5 应为 `3d9920d080db026ed90bbde1bd26667b`（Windows：`certutil -hashfile game-v7.4.iso MD5`）。
 
 ### 方式三：换字体（可选，无需 Python）
 
 想换掉汉化盘里的字体风格（粗圆 → 宋体、黑体等），或者调字号：
 
-1. 到 [Releases](https://github.com/whitsats/is-pure-zh/releases) 下载 `I-s-Pure-font-tool-v7.2.zip`，解压。
+1. 到 [Releases](https://github.com/whitsats/is-pure-zh/releases/tag/v7.4) 下载 `I-s-Pure-font-tool-v7.4.zip`，解压。
 2. 把**已经汉化好**的 ISO 拖到 `I-s-Pure-自定义字库打盘.exe` 上。
 3. 选一个自定义字体（`.ttf/.otf/.ttc`），先点「只看预览」确认效果，再点「开始打盘」。
 
