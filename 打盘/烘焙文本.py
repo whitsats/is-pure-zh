@@ -29,8 +29,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OLD_COMMIT = '8bdf69f'
-JP_TEXT_DIR = Path(r'D:\Code\IS汉化\日文原始文本')
-AUTHOR_TABLE = Path(r'D:\Code\IS汉化\原始解包\输出码表.txt')
+ORIGINAL_PROJECT = ROOT / '素材/汉化原始工程'
+JP_TEXT_DIR = ORIGINAL_PROJECT / '日文原始文本'
+AUTHOR_TABLE = ORIGINAL_PROJECT / '原始解包/输出码表.txt'
 MAC_LBA = 192346
 MAC_SLOT = 1081344
 
@@ -278,7 +279,7 @@ def main() -> int:
     ap.add_argument('--日文', dest='jpdir', type=Path, default=JP_TEXT_DIR)
     ap.add_argument('--作者码表', dest='authortable', type=Path, default=AUTHOR_TABLE)
     ap.add_argument('--mac', dest='mac', type=Path, default=ROOT / '一键打盘' / 'patch' / 'mac-v6.afs')
-    ap.add_argument('--原盘', dest='orig', type=Path, default=ROOT / 'game-original.iso')
+    ap.add_argument('--原盘', dest='orig', type=Path, default=ROOT / '素材/PS2原盘/game-original.iso')
     ap.add_argument('--旧提交', dest='old_commit', default=OLD_COMMIT)
     ap.add_argument('--输出', dest='out', type=Path, default=None)
     ap.add_argument('--检', dest='check', action='store_true')

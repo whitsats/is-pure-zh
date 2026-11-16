@@ -17,6 +17,7 @@ Usage (in 打盘/):
 import hashlib, os, shutil, struct, sys
 
 BASE = os.path.expanduser('~/workspace/is-pure')
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SLOTS = {
     'ETC.AFS':  (159082, 17889280),
     'MAC.AFS':  (192346, 1081344),
@@ -52,6 +53,8 @@ def main():
     etc_path, mac_path, init_path, elf_path = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
     out_path = sys.argv[5] if len(sys.argv) > 5 else os.path.join(BASE, 'game-v7.iso')
     src_iso = os.path.join(BASE, 'game-original.iso')
+    if not os.path.isfile(src_iso):
+        src_iso = os.path.join(PROJECT_ROOT, '素材', 'PS2原盘', 'game-original.iso')
     new_files = {
         'ETC.AFS': open(etc_path, 'rb').read(),
         'MAC.AFS': open(mac_path, 'rb').read(),
