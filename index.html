@@ -5,7 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="《I’s Pure》PS2 简体中文汉化，作品介绍、汉化历程、致谢与技术记录。">
   <title>I’s Pure｜PS2 简体中文汉化</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+:root {
+  color-scheme: light;
+  --paper: #fbfaf6;
+  --ink: #292723;
+  --muted: #5d5850;
+  --line: #d6d0c6;
+  --accent: #822e42;
+  --wash: #f2ece5;
+  --serif: "Baskervville", "Songti SC", "Noto Serif CJK SC", "SimSun", serif;
+  --sans: "Source Sans 3", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.8 var(--sans); }
+.port { --accent: #275951; --wash: #eaf0e9; }
+a { color: var(--accent); text-underline-offset: .2em; }
+a:hover { text-decoration-thickness: 2px; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.wrap { width: min(100% - 72px, 1056px); margin-inline: auto; }
+.skip { position: absolute; left: 1rem; top: -6rem; padding: .5rem 1rem; background: var(--paper); }
+.skip:focus { top: 1rem; }
+.mast, .foot { display: flex; justify-content: space-between; gap: 12px 36px; align-items: baseline; }
+.mast { border-bottom: 2px solid var(--accent); padding: 25px 0 13px; }
+.brand { font: 27px/1.2 Georgia, serif; color: var(--ink); text-decoration: none; }
+nav { display: flex; flex-wrap: wrap; gap: 4px 24px; font-size: .91rem; }
+nav a { color: var(--ink); text-decoration: none; }
+nav a:hover { color: var(--accent); text-decoration: underline; }
+h1, h2, h3, p, figure, dl, dd { margin: 0; }
+h1, h2, h3 { font-family: var(--serif); }
+h1 { font-family: Georgia, var(--serif); font-size: clamp(3rem, 8vw, 5.8rem); line-height: .94; font-weight: 400; letter-spacing: -.065em; }
+h1 span { display: block; font: 600 clamp(1.35rem, 3vw, 2rem)/1.4 var(--serif); letter-spacing: .04em; margin: 17px 0 22px; }
+h2 { line-height: 1.4; font-size: 1.65rem; font-weight: 600; }
+h3 { line-height: 1.5; font-size: 1.17rem; }
+.feature, .article { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 288px); gap: 32px clamp(40px, 7vw, 94px); }
+.feature { grid-template-columns: minmax(0, 1fr) minmax(0, 440px); gap: 27px clamp(32px, 5vw, 64px); align-items: start; padding: 60px 0 50px; }
+.lead { max-width: 37em; font-size: 1.07rem; }
+.links { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 24px; margin: 22px 0 39px; font-size: .94rem; }
+.button { display: inline-block; color: #fff; background: var(--accent); padding: .45em 1.05em; text-decoration: none; }
+.button:hover { text-decoration: underline; }
+.synopsis h2 { font-size: 1.25rem; margin-bottom: .55em; }
+p + p { margin-top: .7em; }
+.note, figcaption { color: var(--muted); font-size: .85rem; }
+.nowrap { white-space: nowrap; }
+.cover { justify-self: stretch; padding-top: 9px; }
+.cover img, .book img, .scene img { display: block; width: 100%; height: auto; }
+.book-images { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 310px; }
+.scene { margin: 0 0 24px; }
+figcaption { margin-top: 8px; }
+.download { border-block: 1px solid var(--line); background: var(--wash); padding: 19px 24px; display: grid; grid-template-columns: 155px minmax(0, 1fr); gap: 8px 20px; }
+.download h2 { font-size: 1.22rem; padding-top: .2em; }
+.article, .section { padding: 39px 0 44px; border-bottom: 1px solid var(--line); }
+.article h2, .section h2 { margin-bottom: .7em; }
+.timeline, .credits { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .8em 1.5em; margin: .7em 0 1em; }
+.timeline dt, .credits dt { color: var(--accent); font-weight: 650; }
+.timeline dd, .credits dd { min-width: 0; }
+.book { align-self: start; margin-top: 10px; }
+.prose { max-width: 45em; }
+.prose h3 { margin: 1.1em 0 .35em; }
+.scheme { margin: 18px 0 24px; }
+.slot, .route { display: flex; list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); color: var(--accent); background: var(--wash); font-size: .94rem; }
+.slot > *, .route li { padding: .55em .7em; flex: 1; text-align: center; }
+.slot > * + *, .route li + li { border-left: 1px solid var(--line); }
+.route small { color: var(--muted); }
+.source-list { padding-left: 1.2em; margin: .8em 0 0; }
+.foot { padding: 20px 0 42px; color: var(--muted); font-size: .88rem; }
+@media (max-width: 780px) {
+  .wrap { width: calc(100% - 44px); }
+  .feature { grid-template-columns: minmax(0, 1fr) minmax(0, 40%); gap: 24px; }
+  .article { grid-template-columns: minmax(0, 1fr) minmax(0, 210px); gap: 24px; }
+  nav { gap: 4px 13px; }
+}
+@media (max-width: 570px) {
+  .wrap { width: calc(100% - 34px); }
+  .mast { padding-top: 16px; flex-wrap: wrap; }
+  .feature, .article, .download { grid-template-columns: minmax(0, 1fr); }
+  .feature { padding: 32px 0; }
+  .download { padding: 15px; }
+  .timeline, .credits { gap: .6em 1em; }
+}
+@media (max-width: 350px) {
+  .timeline { grid-template-columns: 1fr; }
+  .timeline dd { margin-bottom: .5em; }
+}
+  </style>
 </head>
 <body class="localization">
   <a class="skip" href="#main">跳到正文</a>
