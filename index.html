@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="I’s Pure PS2 简体中文汉化的译文、字库、打盘与验证过程。">
+  <title>I’s Pure · PS2 汉化</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="localization">
+  <header class="top wrap">
+    <a class="wordmark" href="./">I’s Pure <span>PS2 汉化</span></a>
+    <nav aria-label="页面导航"><a href="#workflow">汉化流程</a><a href="#verification">版本验证</a><a href="https://github.com/whitsats/is-pure-zh">源码 ↗</a></nav>
+  </header>
+  <main>
+    <section class="hero wrap">
+      <div>
+        <p class="eyebrow">PS2 · 简体中文 · v7.4</p>
+        <h1>原机汉化，<br>从文本到光盘。</h1>
+        <p class="intro">在原版 PS2 游戏里读完整的中文剧情。项目从前辈的翻译与破解成果出发，补齐后续章节，并修复系统文本和字形显示。</p>
+        <div class="actions"><a class="primary" href="https://github.com/whitsats/is-pure-zh/releases">查看汉化发布</a><a href="https://whitsats.github.io/is-pure-port/">了解 WebGAL 移植 ↗</a></div>
+      </div>
+      <figure class="hero-figure">
+        <div class="figure-title"><span>01 / 光盘写入示意</span><span>ISO 9660</span></div>
+        <div class="disc" aria-hidden="true"><span>v7.4</span><i></i></div>
+        <div class="figure-legend"><span>MAC.AFS 译文</span><span>ETC.AFS 字库</span><span>ELF 系统文本</span></div>
+        <figcaption>在原盘资源槽位内写入修订内容，再生成独立的汉化镜像。</figcaption>
+      </figure>
+    </section>
+    <div class="metrics wrap" aria-label="汉化规模">
+      <div><strong>16</strong><span>章完整剧本</span></div>
+      <div><strong>24,876</strong><span>行中日对照</span></div>
+      <div><strong>657</strong><span>条中文系统文本</span></div>
+    </div>
+    <section class="section wrap" id="workflow">
+      <div class="section-head"><p class="eyebrow">工作流程</p><h2>一句译文如何进游戏</h2></div>
+      <ol class="pipeline">
+        <li><span>01</span><h3>对齐原文</h3><p>按剧本地址和日文原句核对中文，记录每条修订的来源。</p></li>
+        <li><span>02</span><h3>装入文本槽位</h3><p>检查字节长度与控制符，超出原槽位的译文留到下一轮精简。</p></li>
+        <li><span>03</span><h3>生成字库</h3><p>先清掉旧字形的两位像素，再按基线写入汉字、标点和全角字符。</p></li>
+        <li><span>04</span><h3>打盘与回归</h3><p>替换 AFS、INIT 和可执行文件，核对镜像哈希，并在模拟器检验菜单和对话。</p></li>
+      </ol>
+    </section>
+    <section class="section wrap two-col" id="verification">
+      <div class="section-head"><p class="eyebrow">版本验证</p><h2>从显示问题到可复核的修订</h2><p>修订尽量小。比如 v7.4 只替换新增译文用到的四个字形，并逐字节核对字库与档案。</p><a href="https://github.com/whitsats/is-pure-zh#版本说明">阅读版本记录 ↗</a></div>
+      <div class="ledger">
+        <div><span>v7.1</span><p>修复残影、标点尺寸和系统消息截断。</p></div>
+        <div><span>v7.2</span><p>用统一基线修正字形纵向落位。</p></div>
+        <div><span>v7.3</span><p>将审定的新译文写入可容纳的原盘槽位。</p></div>
+        <div><span>v7.4</span><p>把「泽、敛、沫、祥」补到同一套字库。</p></div>
+      </div>
+    </section>
+  </main>
+  <footer class="wrap footer"><span>I’s Pure · PS2 简体中文汉化</span><p>感谢 IS 吧与 QQ 群 IS 汉化讨论的翻译、校对和破解前辈。使用补丁需自备合法原盘。</p></footer>
+</body>
+</html>
