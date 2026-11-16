@@ -3,54 +3,99 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="I’s Pure PS2 简体中文汉化的译文、字库、打盘与验证过程。">
-  <title>I’s Pure · PS2 汉化</title>
+  <meta name="description" content="《I’s Pure》PS2 简体中文汉化，作品介绍、汉化历程、致谢与技术记录。">
+  <title>I’s Pure｜PS2 简体中文汉化</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="localization">
-  <header class="top wrap">
-    <a class="wordmark" href="./">I’s Pure <span>PS2 汉化</span></a>
-    <nav aria-label="页面导航"><a href="#workflow">汉化流程</a><a href="#verification">版本验证</a><a href="https://github.com/whitsats/is-pure-zh">源码 ↗</a></nav>
+  <a class="skip" href="#main">跳到正文</a>
+  <header class="mast wrap">
+    <a class="brand" href="./">I’s Pure</a>
+    <nav aria-label="站点导航">
+      <a href="#story">作品</a><a href="#history">历程</a><a href="#credits">致谢</a><a href="#tech">技术</a>
+      <a href="https://github.com/whitsats/is-pure-zh">GitHub</a>
+    </nav>
   </header>
-  <main>
-    <section class="hero wrap">
-      <div>
-        <p class="eyebrow">PS2 · 简体中文 · v7.4</p>
-        <h1>原机汉化，<br>从文本到光盘。</h1>
-        <p class="intro">在原版 PS2 游戏里读完整的中文剧情。项目从前辈的翻译与破解成果出发，补齐后续章节，并修复系统文本和字形显示。</p>
-        <div class="actions"><a class="primary" href="https://github.com/whitsats/is-pure-zh/releases">查看汉化发布</a><a href="https://whitsats.github.io/is-pure-port/">了解 WebGAL 移植 ↗</a></div>
+  <main class="wrap" id="main">
+    <section class="feature" id="story" aria-labelledby="title">
+      <div class="feature-copy">
+        <h1 id="title">I’s Pure<span>PS2 简体中文汉化</span></h1>
+        <p class="lead">在 PlayStation 2 上读简体中文版。这个项目接续 IS 吧与 QQ 群历年的人工翻译、校对和破解工作，补完后续章节，并把字库和系统菜单一并整理进汉化补丁。</p>
+        <div class="links">
+          <a class="button" href="https://github.com/whitsats/is-pure-zh/releases/tag/v7.4">v7.4 汉化补丁</a>
+          <a href="https://whitsats.github.io/is-pure-port/">WebGAL 与安卓移植</a>
+        </div>
+        <div class="synopsis">
+          <h2>关于这部作品</h2>
+          <p>高中生濑户一贵喜欢同班的苇月伊织。两人一起筹备迎新活动，终于有机会熟悉起来。就在一贵想靠近伊织的时候，从小认识的秋叶季子又回到了他的生活里。</p>
+          <p>故事出自桂正和的漫画《I’s》。同名 OVA 在 2005 至 2006 年发行，PS2 恋爱冒险游戏于 2006 年 11 月 9 日在日本发售，盘号为 <span class="nowrap">SLPM-66570</span>。</p>
+          <p class="note"><a href="https://www.shueisha.co.jp/books/items/contents.html?jdcn=08619371872411315501">集英社书目</a> · <a href="https://pierrot.jp/archive/ova/title51.html">Studio Pierrot 动画档案</a> · <a href="https://psxdatacenter.com/psx2/games2/SLPM-66570.html">Regista 游戏目录</a></p>
+        </div>
       </div>
-      <figure class="hero-figure">
-        <div class="figure-title"><span>01 / 光盘写入示意</span><span>ISO 9660</span></div>
-        <div class="disc" aria-hidden="true"><span>v7.4</span><i></i></div>
-        <div class="figure-legend"><span>MAC.AFS 译文</span><span>ETC.AFS 字库</span><span>ELF 系统文本</span></div>
-        <figcaption>在原盘资源槽位内写入修订内容，再生成独立的汉化镜像。</figcaption>
+      <figure class="cover">
+        <img src="images/iori.webp" width="1240" height="868" alt="PS2 游戏中苇月伊织的近景">
+        <figcaption>苇月伊织。图片选自项目整理的《I’s Pure》高清游戏素材。</figcaption>
       </figure>
     </section>
-    <div class="metrics wrap" aria-label="汉化规模">
-      <div><strong>16</strong><span>章完整剧本</span></div>
-      <div><strong>24,876</strong><span>行中日对照</span></div>
-      <div><strong>657</strong><span>条中文系统文本</span></div>
-    </div>
-    <section class="section wrap" id="workflow">
-      <div class="section-head"><p class="eyebrow">工作流程</p><h2>一句译文如何进游戏</h2></div>
-      <ol class="pipeline">
-        <li><span>01</span><h3>对齐原文</h3><p>按剧本地址和日文原句核对中文，记录每条修订的来源。</p></li>
-        <li><span>02</span><h3>装入文本槽位</h3><p>检查字节长度与控制符，超出原槽位的译文留到下一轮精简。</p></li>
-        <li><span>03</span><h3>生成字库</h3><p>先清掉旧字形的两位像素，再按基线写入汉字、标点和全角字符。</p></li>
-        <li><span>04</span><h3>打盘与回归</h3><p>替换 AFS、INIT 和可执行文件，核对镜像哈希，并在模拟器检验菜单和对话。</p></li>
-      </ol>
+    <section class="download" aria-labelledby="version">
+      <h2 id="version">关于 v7.4</h2>
+      <div>
+          <p>用自备的日版原盘镜像打补丁。Windows 64 位可下载一键打盘包，解压后运行 EXE，选择原版 ISO。发布页另有完整补丁包和自定义字库工具。</p>
+          <p>v7.4 重绘了 v7.3 新译文用到的「泽、敛、沫、祥」四个字形。剧情文本沿用 v7.3。</p>
+      </div>
     </section>
-    <section class="section wrap two-col" id="verification">
-      <div class="section-head"><p class="eyebrow">版本验证</p><h2>从显示问题到可复核的修订</h2><p>修订尽量小。比如 v7.4 只替换新增译文用到的四个字形，并逐字节核对字库与档案。</p><a href="https://github.com/whitsats/is-pure-zh#版本说明">阅读版本记录 ↗</a></div>
-      <div class="ledger">
-        <div><span>v7.1</span><p>修复残影、标点尺寸和系统消息截断。</p></div>
-        <div><span>v7.2</span><p>用统一基线修正字形纵向落位。</p></div>
-        <div><span>v7.3</span><p>将审定的新译文写入可容纳的原盘槽位。</p></div>
-        <div><span>v7.4</span><p>把「泽、敛、沫、祥」补到同一套字库。</p></div>
+    <section class="article" id="history" aria-labelledby="history-title">
+      <div>
+        <h2 id="history-title">汉化历程</h2>
+        <dl class="timeline">
+          <dt>2011</dt><dd>百度贴吧 IS 吧立项，前辈开始手工翻译、校对和修复字集。</dd>
+          <dt>2011–2023</dt><dd>IS01–06 的对白、菜单译文和字集在这些年逐步整理完成。</dd>
+          <dt>2026 年 11 月</dt><dd>接续前辈的成果，完成 IS07–16 重译、跳章选单和 ELF 系统文本汉化，封版为 v7。</dd>
+          <dt>v7.1–v7.4</dt><dd>修正字形残影、标点尺寸、系统消息截断和基线。v7.3 将 1,803 条润色实际写入原盘槽位，v7.4 补齐四个字形。</dd>
+        </dl>
+        <p class="note"><a href="https://github.com/whitsats/is-pure-zh#历史">阅览汉化项目的完整记录</a></p>
+      </div>
+      <figure class="book">
+        <div class="book-images">
+          <img src="images/complete-edition-01.webp" width="464" height="660" alt="《I’s》完全版第 1 卷封面，画着苇月伊织" loading="lazy">
+          <img src="images/complete-edition-02.webp" width="464" height="660" alt="《I’s》完全版第 2 卷封面，画着濑户一贵" loading="lazy">
+        </div>
+        <figcaption>桂正和《I’s》完全版第 1、2 卷，取自项目整理的漫画 PDF 封面。</figcaption>
+      </figure>
+    </section>
+    <section class="section" id="credits" aria-labelledby="credits-title">
+      <h2 id="credits-title">致谢</h2>
+      <div class="prose">
+        <p>感谢百度贴吧 IS 吧和 QQ 群「IS汉化讨论」，也感谢多年间留下翻译、校对、字集和破解成果的前辈。</p>
+        <dl class="credits">
+          <dt>翻译</dt><dd>淡淡地调、琉璃扶桑、z59413286、arttest</dd>
+          <dt>校对</dt><dd>水晶骷髅、霜舞</dd>
+          <dt>润色</dt><dd>细雨清风</dd>
+          <dt>破解</dt><dd>Led</dd>
+          <dt>QQ 群管理</dt><dd>群主（—_—），管理员 she4d、我舞着萝卜🌐、霜舞、Led</dd>
+        </dl>
+        <p class="note">以上沿用汉化项目的署名，排名不分先后，ID 以群内显示为准。</p>
+      </div>
+    </section>
+    <section class="section" id="tech" aria-labelledby="tech-title">
+      <h2 id="tech-title">技术分享</h2>
+      <div class="prose">
+        <h3>剧本槽位怎样约束一条译文</h3>
+        <p>先把译文对齐到原盘剧本地址，再检查编码后的字节数。写入时保留后续控制符的位置，剩余空间填入 <code>0xFF</code>。长度超出原槽位的句子记录在清单里，留待人工精简。</p>
+        <figure class="scheme">
+          <div class="slot"><b>中文译文</b><span>0xFF 填充</span><code>%K%P</code></div>
+          <figcaption>文本槽位示意。末尾的控制符保持在原地址。</figcaption>
+        </figure>
+        <h3>用像素和字节对照复核字库</h3>
+        <p>按字形自然基线渲染，逐像素核对字模，再比较 AFS 条目和完整镜像的校验值。v7.4 用这套方法确认差异集中在四个字形。</p>
+        <ul class="source-list">
+          <li><a href="https://github.com/whitsats/is-pure-zh/blob/main/docs/汉化流程.md">汉化流程与打盘入口</a></li>
+          <li><a href="https://github.com/whitsats/is-pure-zh/blob/main/修复/说明.md">字库与系统文字修复说明</a></li>
+          <li><a href="https://github.com/whitsats/is-pure-zh/tree/main/打盘">文本烘焙与镜像构建脚本</a></li>
+        </ul>
       </div>
     </section>
   </main>
-  <footer class="wrap footer"><span>I’s Pure · PS2 简体中文汉化</span><p>感谢 IS 吧与 QQ 群 IS 汉化讨论的翻译、校对和破解前辈。使用补丁需自备合法原盘。</p></footer>
+  <footer class="wrap foot"><span>I’s Pure · 非官方同人项目<br>漫画原作与游戏画面权利归各自权利方。</span><a href="https://github.com/whitsats/is-pure-zh/releases">所有发布</a></footer>
 </body>
 </html>
