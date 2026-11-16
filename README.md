@@ -2,6 +2,8 @@
 
 本项目用于 PS2 原机汉化。WebGAL 和安卓移植的过程与脚本已拆至 [is-pure-port](https://github.com/whitsats/is-pure-port)。
 
+汉化项目的图解介绍见 [项目主页](https://whitsats.github.io/is-pure-zh/)。
+
 汉化方法与验证入口见 [汉化流程](docs/汉化流程.md)。本机原盘、补丁成品与作者原始工程分别放在 `素材/PS2原盘`、`成品/PS2汉化-v7.4`、`素材/汉化原始工程`。
 
 PS2 游戏《I"s Pure》（SLPM-66570，桂正和原作《I"s》改编）的简体中文汉化补丁。
