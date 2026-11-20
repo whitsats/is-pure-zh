@@ -151,7 +151,7 @@ python 修复/字库/替换字库.py --afs etc-v6.afs --lzss out/FONT00-粗圆.l
 - `一键打盘/`：一键打盘工具源码（`patcher.py` + PyInstaller spec + 使用说明），即 Release 里那个 EXE。
 - `工具/`：**自定义字库打盘**，把任意 TTF/OTF/TTC（或一份现成字库）换成盘上的字库，
   用来换字体风格或调字号；带图形界面，可把 ISO 拖到 EXE 上。见 [`工具/说明.md`](工具/说明.md)。
-  Release 里对应的下载是 `I-s-Pure-font-tool-v7.2.zip`（免 Python）。
+  Release 里对应的下载是 `I-s-Pure-font-tool-v7.4.zip`（免 Python）。
 
 ## 历史
 
